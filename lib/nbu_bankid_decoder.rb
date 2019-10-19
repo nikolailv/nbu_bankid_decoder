@@ -1,5 +1,6 @@
 require 'openssl'
-require 'nbu_bank_id_decoder/asn_tools'
+require 'nbu_bankid_decoder/asn_tools'
+require 'nbu_bankid_decoder/nbu_bankid_decoder'
 module NbuBankIdDecoder
   VERSION = "0.0.1"
 
