@@ -13,6 +13,8 @@ json_string = NbuBankIdDecoder.decrypt_response(customer_crypto, private_key)
 data = JSON.parse(json_string)
 ```
 
+Code uses GOST28147 implementation from https://github.com/privat-it/cryptonite
+
 ## API docs and explanation
 
 https://testid.bank.gov.ua/assets/docs/Specification_BankID_NBU_Portal_v4.pdf
