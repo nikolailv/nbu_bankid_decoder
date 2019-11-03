@@ -7,13 +7,15 @@ require 'base64'
 require 'json'
 require 'nbu_bankid_decoder'
 
-private_key = OpenSSL::PKey::RSA.new(File.read(options.private_key_path))
+private_key = File.binread(options.private_key_path)
+my_cert = File.binread(options.public_key_path)
+bank_cert = Base64::decode64(response['cert'])
 customer_crypto = Base64::decode64(response['customerCrypto'])
-json_string = NbuBankIdDecoder.decrypt_response(customer_crypto, private_key)
+json_string = NbuBankIdDecoder.decrypt_response(customer_crypto, private_key, my_cert, bank_cert)
 data = JSON.parse(json_string)
 ```
 
-Code uses GOST28147 implementation from https://github.com/privat-it/cryptonite
+Code uses implementation from https://github.com/privat-it/cryptonite
 
 ## API docs and explanation
 
@@ -41,15 +43,6 @@ Google translate:
 > The encryption procedure for the questionnaire is defined in item 3.3. of this interaction specification.
 
 **Clarification**: "cert" is your Base64 certificate registered for BankID.
-When loading from PEM, just strip BEGIN/END cert lines and new line chars:
-
-```ruby
-cert = File.read(options.cert_path)
-cert.gsub!("-----BEGIN CERTIFICATE-----", "")
-cert.gsub!("-----END CERTIFICATE-----", "")
-cert.gsub!("\n", "")
-cert
-```
 
 UA docs:
 
@@ -120,31 +113,55 @@ Content-Type: application/json
 **customerCrypto** has following ASN.1/DER structure:
 
 ```
-SEQUENCE {
-   OBJECTIDENTIFIER 1.2.840.113549.1.7.3 (envelopedData)
-   [0] {
-      SEQUENCE {
-         INTEGER 0x02 (2 decimal)
-         SET {
-            SEQUENCE {
-               INTEGER 0x02 (2 decimal)
-               [0] c35e86996709293916a881dd98567867bdd9244c
-               SEQUENCE {
-                  OBJECTIDENTIFIER 1.2.840.113549.1.1.1 (rsaEncryption)
-                  NULL
-               }
-               OCTETSTRING 876f8d9.... -- 256 bytes ecnrypted session key (SK), you can decode it with your private RSA key
+rec1value ContentInfo ::=
+{
+  contentType { 1 2 840 113549 1 7 3 }  -- id-envelopedData --,
+  content
+  {
+    version v2,
+    recipientInfos
+    {
+      kari :
+        {
+          version v3,
+          originator originatorKey :
+            {
+              algorithm
+              {
+                algorithm { 1 2 804 2 1 1 1 1 3 1 1 }  -- id-dstu4145PB --,
+                parameters '0500'H
+              },
+              publicKey '00000100 00110110 10010001 01010110 010 ...'B
+            },
+          keyEncryptionAlgorithm
+          {
+            algorithm { 1 2 804 2 1 1 1 1 3 4 }  -- id-dhSinglePass-cofactorDH-gost34311kdf-scheme --,
+            parameters '300F060B2A862402010101010101050500'H
+          },
+          recipientEncryptedKeys
+          {
+            {
+              rid rKeyId :
+                {
+                  subjectKeyIdentifier 'F5E15FFCA5F626A05CCE7BF70AAD336527 ...'H
+                },
+              encryptedKey 'D753D0F360DD9BECF9C8586AC26E02B33B ...'H
             }
-         }
-         SEQUENCE {
-            OBJECTIDENTIFIER 1.2.840.113549.1.7.1 (data)
-            SEQUENCE {
-               OBJECTIDENTIFIER 1.2.804.2.1.1.1.1.1.1.2 -- Encryption algorithm Gost28147ctr Алгоритм ДСТУ ГОСТ 28147:2009 в режимі гамування
-               SEQUENCE {
-                  OCTETSTRING 9bc3c19717a6d017 -- IV (initialization vector) for Gost28147ctr
-               }
-            }
-            [0] 46c8d2d59d992380.... -- response data encrypted with Gost28147ctr using provided SK/IV
+          }
+        }
+    },
+    encryptedContentInfo
+    {
+      contentType { 1 2 840 113549 1 7 1 }  -- id-data --,
+      contentEncryptionAlgorithm
+      {
+        algorithm { 1 2 804 2 1 1 1 1 1 1 2 }  -- id-gost28147-ofb --,
+        parameters '300A040827D3AAEA632228D8'H
+      },
+      encryptedContent 'C78AB166B15BAFDE50578ACDF3786DD621 ...'H
+    }
+  }
+}
 ```
 
 After decryption you get another digital envelope:
@@ -186,4 +203,36 @@ SEQUENCE {
                      }
 ```
 
+## Requirements for private key and certificate
 
+To work with BankID protocols, certificate/key must meet following criteria:
+- use defined DSTU protocols with Diffie-Hellman key agreement
+- certificate must be signed by known authority
+- certificate must be valid and can be checked with OCSP protocol
+
+UA Docs
+
+> 8.1. Сертифікат шифрування у цих Вимогах призначається для використання у протоколах узгодження ключа Діффі-Геллмана: DH в циклічній групі простого поля та в групі точок еліптичної кривої.
+> 8.2. Формат сертифіката шифрування повинен відповідати Вимогам до формату посиленого сертифіката відкритого ключа.
+> 8.3. Розширення сертифіката шифрування "Використання ключа".
+> У розширенні "Використання ключа" ("keyUsage") повинно бути встановлено значення "узгодження ключа" ("keyAgreement"). Додатково можуть бути встановлені значення:
+> "тільки зашифрування" ("encipherOnly");
+> "тільки розшифрування" ("decipherOnly").
+> У розширенні "Використання ключа" ("keyUsage") не повинні бути встановлені значення:
+> "електронний цифровий підпис" ("digitalSignature");
+> "електронний цифровий підпис у сертифікаті" ("keyCertSign");
+> "електронний цифровий підпис у списку відкликаних сертифікатів" ("crlSign");
+> "неспростовність" ("nonRepudiation");
+> "шифрування ключа" ("keyEncipherment");
+> "підписування сертифікатів" ("keyCertSign");
+> "підписування списків відкликаних сертифікатів" ("cRLSign").
+
+Google translate:
+
+> 8.1. The encryption certificate in these Requirements is intended for use in Diffie-Gellman: DH key matching protocols in the simple-loop cyclic group and the elliptic curve point group.
+> 8.2. The encryption certificate format must conform to the Enhanced Public Key Certificate format.
+> 8.3. Key Usage Encryption Certificate Extension.
+> The keyUsage extension must be set to "keyAgreement". Additionally, the following values can be set:
+> "encryption only" ("encipherOnly");
+> "decipherOnly" only.
+> The keyUsage extension does not need to be set to: "digitalSignature", "keyCertSign", "crlSign", "nonRepudiation", "keyEncipherment","keyCertSign", "cRLSign".

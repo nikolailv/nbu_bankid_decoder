@@ -47,7 +47,7 @@ module NbuBankIdDecoder
   end
 
   def decrypt_response(customer_crypto, private_key, public_cert, bank_cert)
-    decrypted = NbuBankIdDecoder.gost28147_ctr_decode(private_key, public_cert, bank_cert, customer_crypto)
+    decrypted = NbuBankIdDecoder.decrypt_envelope(private_key, public_cert, bank_cert, customer_crypto)
     SignedEnvelope.new(decrypted).data
   end
 end
