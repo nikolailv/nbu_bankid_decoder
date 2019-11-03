@@ -2,7 +2,7 @@ require 'openssl'
 require 'nbu_bankid_decoder/asn_tools'
 require 'nbu_bankid_decoder/nbu_bankid_decoder'
 module NbuBankIdDecoder
-  VERSION = "0.0.1"
+  VERSION = "0.0.2"
 
   class InitialEnvelope
     def initialize(bindata)
@@ -34,7 +34,7 @@ module NbuBankIdDecoder
 
   module_function
 
-  def decrypt_response(customer_crypto, private_key)
+  def decrypt_rsa_response(customer_crypto, private_key)
     envelope = InitialEnvelope.new(customer_crypto)
 
     data = envelope.encrypted_data
@@ -43,6 +43,11 @@ module NbuBankIdDecoder
 
     decrypted = NbuBankIdDecoder.gost28147_ctr_decode(data, key, iv)
 
+    SignedEnvelope.new(decrypted).data
+  end
+
+  def decrypt_response(customer_crypto, private_key, public_cert, bank_cert)
+    decrypted = NbuBankIdDecoder.gost28147_ctr_decode(private_key, public_cert, bank_cert, customer_crypto)
     SignedEnvelope.new(decrypted).data
   end
 end
