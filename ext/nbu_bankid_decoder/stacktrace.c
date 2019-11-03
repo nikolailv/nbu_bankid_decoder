@@ -94,7 +94,7 @@ static StackTraceCtx *errors_create_stacktrace(void)
     StackTraceCtx *stacktrace = malloc(sizeof(StackTraceCtx));
 
     if (stacktrace) {
-        stacktrace->pid = pthread_self();
+        stacktrace->pid = pthread_id();
         stacktrace->head = NULL;
         stacktrace->tail = NULL;
         stacktrace->msg = NULL;
@@ -153,7 +153,7 @@ void stacktrace_create(const char *file, const size_t line, const int error_code
 {
     pthread_mutex_lock(&errors_mutex);
 
-    unsigned long pid = pthread_self();
+    unsigned long pid = pthread_id();
     StackTraceCtx *stacktrace = errors_get_stacktrace_by_pid(pid);
 
     if (stacktrace != NULL) {
@@ -185,7 +185,7 @@ void stacktrace_add(const char *file, const size_t line, const int error_code)
 {
     pthread_mutex_lock(&errors_mutex);
 
-    unsigned long pid = pthread_self();
+    unsigned long pid = pthread_id();
     StackTraceCtx *stacktrace = errors_get_stacktrace_by_pid(pid);
 
     if (stacktrace == NULL) {
@@ -199,7 +199,7 @@ void stacktrace_add(const char *file, const size_t line, const int error_code)
 
 const ErrorCtx *stacktrace_get_last(void)
 {
-    unsigned long tid = pthread_self();
+    unsigned long tid = pthread_id();
     ErrorCtx *out;
 
     pthread_mutex_lock(&errors_mutex);
@@ -231,7 +231,7 @@ static void errors_free(ErrorsCtx *ctx)
 
 void stacktrace_free_current(void)
 {
-    unsigned long pid = pthread_self();
+    unsigned long pid = pthread_id();
 
     pthread_mutex_lock(&errors_mutex);
 
@@ -271,7 +271,7 @@ ErrorCtx *stacktrace_get_last_with_alloc(void)
 
     pthread_mutex_lock(&errors_mutex);
 
-    StackTraceCtx *stracktrace = errors_get_stacktrace_by_pid(pthread_self());
+    StackTraceCtx *stracktrace = errors_get_stacktrace_by_pid(pthread_id());
     if (stracktrace != NULL) {
         error_ctx_new = error_copy_with_alloc(stracktrace->head);
     }

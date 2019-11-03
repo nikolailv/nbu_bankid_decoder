@@ -29,9 +29,9 @@ typedef enum {
  * @param seed послідовність випадкових байт
  * @return контекст ГПВЧ
  */
-extern PrngCtx *prng_alloc(PrngMode mode, const ByteArray *seed);
+CRYPTONITE_EXPORT PrngCtx *prng_alloc(PrngMode mode, const ByteArray *seed);
 
-extern int prng_get_mode(PrngCtx *prng, PrngMode *mode);
+CRYPTONITE_EXPORT int prng_get_mode(PrngCtx *prng, PrngMode *mode);
 
 /**
  * Домішує випадковість у стартовий вектор генератора.
@@ -40,7 +40,7 @@ extern int prng_get_mode(PrngCtx *prng, PrngMode *mode);
  * @param seed послідовність випадкових байт
  * @return код помилки
  */
-extern int prng_seed(PrngCtx *prng, const ByteArray *seed);
+CRYPTONITE_EXPORT int prng_seed(PrngCtx *prng, const ByteArray *seed);
 
 /**
  * Повертає масив псевдовипадкових байт.
@@ -49,14 +49,14 @@ extern int prng_seed(PrngCtx *prng, const ByteArray *seed);
  * @param buf буфер, в якому будуть розміщені псевдовипадкові байти
  * @return код помилки
  */
-extern int prng_next_bytes(PrngCtx *prng, ByteArray *buf);
+CRYPTONITE_EXPORT int prng_next_bytes(PrngCtx *prng, ByteArray *buf);
 
 /**
  * Звільняє контекст ГПВЧ.
  *
  * @param prng контекст ГПВЧ
  */
-extern void prng_free(PrngCtx *prng);
+CRYPTONITE_EXPORT void prng_free(PrngCtx *prng);
 
 #ifdef __cplusplus
 }

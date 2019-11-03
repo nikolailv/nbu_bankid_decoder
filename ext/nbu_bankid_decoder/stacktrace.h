@@ -38,13 +38,13 @@ typedef struct ErrorCtx_st {
 #define ERROR_CREATE(error_code) stacktrace_create(FILE_MARKER, __LINE__, error_code, NULL)
 #define ERROR_ADD(error_code) stacktrace_add(FILE_MARKER, __LINE__, error_code)
 
-extern const ErrorCtx *stacktrace_get_last(void);
-extern void stacktrace_create(const char *file, const size_t line, const int error_code, const char *msg);
-extern void stacktrace_add(const char *file, const size_t line, const int error_code);
-extern ErrorCtx *stacktrace_get_last_with_alloc(void);
-extern void error_ctx_free(ErrorCtx *err);
-extern void stacktrace_free_current(void);
-extern void stacktrace_finalize(void);
+CRYPTONITE_EXPORT const ErrorCtx *stacktrace_get_last(void);
+CRYPTONITE_EXPORT void stacktrace_create(const char *file, const size_t line, const int error_code, const char *msg);
+CRYPTONITE_EXPORT void stacktrace_add(const char *file, const size_t line, const int error_code);
+CRYPTONITE_EXPORT ErrorCtx *stacktrace_get_last_with_alloc(void);
+CRYPTONITE_EXPORT void error_ctx_free(ErrorCtx *err);
+CRYPTONITE_EXPORT void stacktrace_free_current(void);
+CRYPTONITE_EXPORT void stacktrace_finalize(void);
 
 #ifdef  __cplusplus
 }

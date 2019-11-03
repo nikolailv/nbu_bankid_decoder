@@ -48,7 +48,7 @@ typedef enum {
  * @param sbox_id ідентифікатор стандартної таблиці замін
  * @return контекст ГОСТ 28147
  */
-extern Gost28147Ctx *gost28147_alloc(Gost28147SboxId sbox_id);
+CRYPTONITE_EXPORT Gost28147Ctx *gost28147_alloc(Gost28147SboxId sbox_id);
 
 /**
  * Створює контекст ГОСТ 28147 з користувацьким sbox.
@@ -56,9 +56,9 @@ extern Gost28147Ctx *gost28147_alloc(Gost28147SboxId sbox_id);
  * @param sbox користувацька таблиця замін разміром 128 байт
  * @return контекст ГОСТ 28147
  */
-extern Gost28147Ctx *gost28147_alloc_user_sbox(const ByteArray *sbox);
+CRYPTONITE_EXPORT Gost28147Ctx *gost28147_alloc_user_sbox(const ByteArray *sbox);
 
-extern Gost28147Ctx *gost28147_copy_with_alloc(const Gost28147Ctx *ctx);
+CRYPTONITE_EXPORT Gost28147Ctx *gost28147_copy_with_alloc(const Gost28147Ctx *ctx);
 
 /**
  * Повертає розгорнуту таблицю замін.
@@ -67,7 +67,7 @@ extern Gost28147Ctx *gost28147_copy_with_alloc(const Gost28147Ctx *ctx);
  * @param sbox таблиця замін разміром 128 байт
  * @return код помилки
  */
-extern int gost28147_get_ext_sbox(const Gost28147Ctx *ctx, ByteArray **sbox);
+CRYPTONITE_EXPORT int gost28147_get_ext_sbox(const Gost28147Ctx *ctx, ByteArray **sbox);
 
 /**
  * Повертає зжату таблицю замін.
@@ -76,7 +76,7 @@ extern int gost28147_get_ext_sbox(const Gost28147Ctx *ctx, ByteArray **sbox);
  * @param sbox таблиця замін разміром 128 байт
  * @return код помилки
  */
-extern int gost28147_get_compress_sbox(const Gost28147Ctx *ctx, ByteArray **sbox);
+CRYPTONITE_EXPORT int gost28147_get_compress_sbox(const Gost28147Ctx *ctx, ByteArray **sbox);
 
 /**
  * Генерує секретний ключ відповідно до ГОСТ 28147-89.
@@ -85,7 +85,7 @@ extern int gost28147_get_compress_sbox(const Gost28147Ctx *ctx, ByteArray **sbox
  * @param key секретний ключ
  * @return код помилки
  */
-extern int gost28147_generate_key(PrngCtx *prng, ByteArray **key);
+CRYPTONITE_EXPORT int gost28147_generate_key(PrngCtx *prng, ByteArray **key);
 
 /**
  * Ініціалізує контекст для шифрування у режимі простої заміни.
@@ -94,7 +94,7 @@ extern int gost28147_generate_key(PrngCtx *prng, ByteArray **key);
  * @param key ключ шифрування
  * @return код помилки
  */
-extern int gost28147_init_ecb(Gost28147Ctx *ctx, const ByteArray *key);
+CRYPTONITE_EXPORT int gost28147_init_ecb(Gost28147Ctx *ctx, const ByteArray *key);
 
 /**
  * Ініціалізує контекст для шифрування у режимі гамування.
@@ -104,7 +104,7 @@ extern int gost28147_init_ecb(Gost28147Ctx *ctx, const ByteArray *key);
  * @param iv синхропосилка
  * @return код помилки
  */
-extern int gost28147_init_ctr(Gost28147Ctx *ctx, const ByteArray *key, const ByteArray *iv);
+CRYPTONITE_EXPORT int gost28147_init_ctr(Gost28147Ctx *ctx, const ByteArray *key, const ByteArray *iv);
 
 /**
  * Ініціалізує контекст для шифрування у режимі гамування зі зворотнім зв'язком.
@@ -114,7 +114,7 @@ extern int gost28147_init_ctr(Gost28147Ctx *ctx, const ByteArray *key, const Byt
  * @param iv синхропосилка
  * @return код помилки
  */
-extern int gost28147_init_cfb(Gost28147Ctx *ctx, const ByteArray *key, const ByteArray *iv);
+CRYPTONITE_EXPORT int gost28147_init_cfb(Gost28147Ctx *ctx, const ByteArray *key, const ByteArray *iv);
 
 /**
  * Ініціалізує контекст для отримання імітовставки.
@@ -123,7 +123,7 @@ extern int gost28147_init_cfb(Gost28147Ctx *ctx, const ByteArray *key, const Byt
  * @param key ключ шифрування
  * @return код помилки
  */
-extern int gost28147_init_mac(Gost28147Ctx *ctx, const ByteArray *key);
+CRYPTONITE_EXPORT int gost28147_init_mac(Gost28147Ctx *ctx, const ByteArray *key);
 
 /**
  * Шифрує блок даних.
@@ -134,7 +134,7 @@ extern int gost28147_init_mac(Gost28147Ctx *ctx, const ByteArray *key);
  *
  * @return код помилки
  */
-extern int gost28147_encrypt(Gost28147Ctx *ctx, const ByteArray *data, ByteArray **encrypted_data);
+CRYPTONITE_EXPORT int gost28147_encrypt(Gost28147Ctx *ctx, const ByteArray *data, ByteArray **encrypted_data);
 
 /**
  * Розшифровує блок даних.
@@ -144,7 +144,7 @@ extern int gost28147_encrypt(Gost28147Ctx *ctx, const ByteArray *data, ByteArray
  * @param data розшифровані дані
  * @return код помилки
  */
-extern int gost28147_decrypt(Gost28147Ctx *ctx, const ByteArray *encrypted_data, ByteArray **data);
+CRYPTONITE_EXPORT int gost28147_decrypt(Gost28147Ctx *ctx, const ByteArray *encrypted_data, ByteArray **data);
 
 /**
  * Обновлюемо імітовектор блоком даних.
@@ -153,7 +153,7 @@ extern int gost28147_decrypt(Gost28147Ctx *ctx, const ByteArray *encrypted_data,
  * @param data дані
  * @return код помилки
  */
-extern int gost28147_update_mac(Gost28147Ctx *ctx, const ByteArray *data);
+CRYPTONITE_EXPORT int gost28147_update_mac(Gost28147Ctx *ctx, const ByteArray *data);
 
 /**
  * Завершуе вироботку імітовектора і повертає його значення.
@@ -163,7 +163,7 @@ extern int gost28147_update_mac(Gost28147Ctx *ctx, const ByteArray *data);
  *
  * @return код помилки
  */
-extern int gost28147_final_mac(Gost28147Ctx *ctx, ByteArray **mac);
+CRYPTONITE_EXPORT int gost28147_final_mac(Gost28147Ctx *ctx, ByteArray **mac);
 
 /**
  * Завершує вироботку імітовектора і повертає його розширене значення.
@@ -173,7 +173,7 @@ extern int gost28147_final_mac(Gost28147Ctx *ctx, ByteArray **mac);
  *
  * @return код помилки
  */
-extern int gost28147_final_mac8(Gost28147Ctx *ctx, ByteArray **mac);
+CRYPTONITE_EXPORT int gost28147_final_mac8(Gost28147Ctx *ctx, ByteArray **mac);
 
 /**
  * Звільняє контекст ГОСТ 28147.
@@ -182,7 +182,7 @@ extern int gost28147_final_mac8(Gost28147Ctx *ctx, ByteArray **mac);
  *
  * @return код помилки
  */
-extern void gost28147_free(Gost28147Ctx *ctx);
+CRYPTONITE_EXPORT void gost28147_free(Gost28147Ctx *ctx);
 
 #ifdef  __cplusplus
 }
