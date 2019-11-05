@@ -33,4 +33,4 @@ Content-Type: application/json
 }
 ```
 
-Response is **encryptedContent** as defined by https://tools.ietf.org/html/rfc5652
+Response contains field **customerCrypto** - Base64 encoded **encryptedContent** envelope as defined by https://tools.ietf.org/html/rfc5652
